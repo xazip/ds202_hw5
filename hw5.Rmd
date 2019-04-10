@@ -39,16 +39,23 @@ class(data$`Store Location`)
 
 #data$`Store Location`
 
-#data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n")
 
-#data_clean_2 <- data_clean_1 %>% select(-address1, -address2)
 
-#data_clean_3 <- data_clean_2 %>% mutate(coords = gsub("[()]", "", coords))
-
-data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n") %>% select(-address1, -address2) %>% mutate(coords = gsub("[()]", "", coords)) %>% separate(coords, c("x-coordinate", "y-coordinate"), sep = ",") 
+data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n") %>% select(-address1, -address2) %>% mutate(coords = gsub("[()]", "", coords)) %>% separate(coords, c("x-coordinate", "y-coordinate"), sep = ",") # My code
 
 str(data_clean_1)
+
+#Code using regular expressions
+
+#data_clean_1 <- data %>% mutate(`Store Location` = gsub("(?<=\\()[^()]*(?=\\))(*SKIP)(*F)|.", "", `Store Location`, perl=T)) %>% separate(`Store Location`, c("x-coordinate", "y-coordinate"), sep = ",") 
+
 
 
 ```
 
+```{r}
+
+
+
+
+```
