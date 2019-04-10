@@ -1,0 +1,54 @@
+---
+title: "Hw 5"
+author: "Andrew Maloney"
+date: "4/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+if(file.exists("alcohol.rds")) {
+  data <- readRDS("alcohol.rds")
+} else {
+  url <- "https://xdaiisu.github.io/ds202materials/data/ames.csv"
+  data <- readr::read_csv(url)
+  saveRDS(data, file = "alcohol.rds")
+  
+}
+
+```
+
+```{r}
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+
+```
+
+
+
+
+
+```{r}
+class(data$`Store Location`)
+
+#data$`Store Location`
+
+#data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n")
+
+#data_clean_2 <- data_clean_1 %>% select(-address1, -address2)
+
+#data_clean_3 <- data_clean_2 %>% mutate(coords = gsub("[()]", "", coords))
+
+data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n") %>% select(-address1, -address2) %>% mutate(coords = gsub("[()]", "", coords)) %>% separate(coords, c("x-coordinate", "y-coordinate"), sep = ",") 
+
+str(data_clean_1)
+
+
+```
+
