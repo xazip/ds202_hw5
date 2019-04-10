@@ -209,12 +209,12 @@ $(document).ready(function () {
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.1.0     ✔ readr   1.3.1
 ## ✔ tibble  2.0.1     ✔ purrr   0.3.0
 ## ✔ tidyr   0.8.2     ✔ stringr 1.4.0
 ## ✔ ggplot2 3.1.0     ✔ forcats 0.3.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(stringr)</code></pre>
@@ -222,13 +222,9 @@ $(document).ready(function () {
 <pre><code>## [1] &quot;character&quot;</code></pre>
 <pre class="r"><code>#data$`Store Location`
 
-#data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;, &quot;address2&quot;, &quot;coords&quot;), sep = &quot;\n&quot;)
 
-#data_clean_2 &lt;- data_clean_1 %&gt;% select(-address1, -address2)
 
-#data_clean_3 &lt;- data_clean_2 %&gt;% mutate(coords = gsub(&quot;[()]&quot;, &quot;&quot;, coords))
-
-data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;, &quot;address2&quot;, &quot;coords&quot;), sep = &quot;\n&quot;) %&gt;% select(-address1, -address2) %&gt;% mutate(coords = gsub(&quot;[()]&quot;, &quot;&quot;, coords)) %&gt;% separate(coords, c(&quot;x-coordinate&quot;, &quot;y-coordinate&quot;), sep = &quot;,&quot;) </code></pre>
+data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;, &quot;address2&quot;, &quot;coords&quot;), sep = &quot;\n&quot;) %&gt;% select(-address1, -address2) %&gt;% mutate(coords = gsub(&quot;[()]&quot;, &quot;&quot;, coords)) %&gt;% separate(coords, c(&quot;x-coordinate&quot;, &quot;y-coordinate&quot;), sep = &quot;,&quot;) # My code</code></pre>
 <pre><code>## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 46099 rows
 ## [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104,
 ## 105, 106, 107, ...].</code></pre>
@@ -259,6 +255,9 @@ data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;
 ##  $ Sale (Dollars)       : num  456 212 495 261 4597 ...
 ##  $ Volume Sold (Liters) : num  24 12 9 4.5 630 6.75 12 288 18 31.5 ...
 ##  $ Volume Sold (Gallons): num  6.34 3.17 2.37 1.18 166.42 ...</code></pre>
+<pre class="r"><code>#Code using regular expressions
+
+#data_clean_1 &lt;- data %&gt;% mutate(`Store Location` = gsub(&quot;(?&lt;=\\()[^()]*(?=\\))(*SKIP)(*F)|.&quot;, &quot;&quot;, `Store Location`, perl=T)) %&gt;% separate(`Store Location`, c(&quot;x-coordinate&quot;, &quot;y-coordinate&quot;), sep = &quot;,&quot;) </code></pre>
 
 
 
