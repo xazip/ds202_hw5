@@ -224,7 +224,7 @@ $(document).ready(function () {
 
 
 
-data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;, &quot;address2&quot;, &quot;coords&quot;), sep = &quot;\n&quot;) %&gt;% select(-address1, -address2) %&gt;% mutate(coords = gsub(&quot;[()]&quot;, &quot;&quot;, coords)) %&gt;% separate(coords, c(&quot;x-coordinate&quot;, &quot;y-coordinate&quot;), sep = &quot;,&quot;) # My code</code></pre>
+data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;, &quot;address2&quot;, &quot;coords&quot;), sep = &quot;\n&quot;) %&gt;% select(-address1, -address2) %&gt;% mutate(coords = gsub(&quot;[()]&quot;, &quot;&quot;, coords)) %&gt;% separate(coords, c(&quot;lat&quot;, &quot;long&quot;), sep = &quot;,&quot;) # My code</code></pre>
 <pre><code>## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 46099 rows
 ## [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104,
 ## 105, 106, 107, ...].</code></pre>
@@ -237,8 +237,8 @@ data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;
 ##  $ Address              : chr  &quot;626 Lincoln Way&quot; &quot;626 Lincoln Way&quot; &quot;626 Lincoln Way&quot; &quot;626 Lincoln Way&quot; ...
 ##  $ City                 : chr  &quot;Ames&quot; &quot;Ames&quot; &quot;Ames&quot; &quot;Ames&quot; ...
 ##  $ Zip Code             : num  50010 50010 50010 50010 50010 ...
-##  $ x-coordinate         : chr  &quot;42.022854&quot; &quot;42.022854&quot; &quot;42.022854&quot; &quot;42.022854&quot; ...
-##  $ y-coordinate         : chr  &quot; -93.618911&quot; &quot; -93.618911&quot; &quot; -93.618911&quot; &quot; -93.618911&quot; ...
+##  $ lat                  : chr  &quot;42.022854&quot; &quot;42.022854&quot; &quot;42.022854&quot; &quot;42.022854&quot; ...
+##  $ long                 : chr  &quot; -93.618911&quot; &quot; -93.618911&quot; &quot; -93.618911&quot; &quot; -93.618911&quot; ...
 ##  $ County Number        : num  85 85 85 85 85 85 85 85 85 85 ...
 ##  $ County               : chr  &quot;STORY&quot; &quot;STORY&quot; &quot;STORY&quot; &quot;STORY&quot; ...
 ##  $ Category             : num  1031100 1062400 1022200 1022200 1901200 ...
@@ -258,6 +258,15 @@ data_clean_1 &lt;- data %&gt;% separate(`Store Location`, c(&quot;address1&quot;
 <pre class="r"><code>#Code using regular expressions
 
 #data_clean_1 &lt;- data %&gt;% mutate(`Store Location` = gsub(&quot;(?&lt;=\\()[^()]*(?=\\))(*SKIP)(*F)|.&quot;, &quot;&quot;, `Store Location`, perl=T)) %&gt;% separate(`Store Location`, c(&quot;x-coordinate&quot;, &quot;y-coordinate&quot;), sep = &quot;,&quot;) </code></pre>
+<pre class="r"><code>table(data_clean_1$Pack)</code></pre>
+<pre><code>## 
+##      1      2      3      4      5      6      8      9     10     12 
+##   1631     18    333    549    577 103274    357     16   5386 240349 
+##     15     20     24     30     32     44     48    288 
+##     36      9  23199      6      2    421   5862      8</code></pre>
+<pre class="r"><code>data_clean_2 &lt;- data_clean_1 %&gt;% mutate(long = as.numeric(long), lat = as.numeric(lat), `Vendor Number` = as.numeric(`Vendor Number`), Pack = factor(Pack), `Bottle Volume (ml)` = factor(`Bottle Volume (ml)`))
+
+data_clean_3 &lt;- data_clean_2 %&gt;% separate(Date, c(&quot;Day&quot;, &quot;Month&quot;, &quot;Year&quot;), sep = &quot;/&quot;)</code></pre>
 
 
 
