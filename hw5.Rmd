@@ -41,7 +41,7 @@ class(data$`Store Location`)
 
 
 
-data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n") %>% select(-address1, -address2) %>% mutate(coords = gsub("[()]", "", coords)) %>% separate(coords, c("x-coordinate", "y-coordinate"), sep = ",") # My code
+data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n") %>% select(-address1, -address2) %>% mutate(coords = gsub("[()]", "", coords)) %>% separate(coords, c("lat", "long"), sep = ",") # My code
 
 str(data_clean_1)
 
@@ -56,6 +56,11 @@ str(data_clean_1)
 ```{r}
 
 
+table(data_clean_1$Pack)
 
+
+data_clean_2 <- data_clean_1 %>% mutate(long = as.numeric(long), lat = as.numeric(lat), `Vendor Number` = as.numeric(`Vendor Number`), Pack = factor(Pack), `Bottle Volume (ml)` = factor(`Bottle Volume (ml)`))
+
+data_clean_3 <- data_clean_2 %>% separate(Date, c("Day", "Month", "Year"), sep = "/")
 
 ```
