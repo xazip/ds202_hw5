@@ -42,8 +42,7 @@ data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "c
 
 str(data_clean_1)
 
-#Code using regular expressions
-#data_clean_1 <- data %>% mutate(`Store Location` = gsub("(?<=\\()[^()]*(?=\\))(*SKIP)(*F)|.", "", `Store Location`, perl=T)) %>% separate(`Store Location`, c("x-coordinate", "y-coordinate"), sep = ",") 
+#Code using regular expressions: data_clean_1 <- data %>% mutate(`Store Location` = gsub("(?<=\\()[^()]*(?=\\))(*SKIP)(*F)|.", "", `Store Location`, perl=T)) %>% separate(`Store Location`, c("x-coordinate", "y-coordinate"), sep = ",") 
 
 ```
 
@@ -52,15 +51,10 @@ str(data_clean_1)
 3. Extract year, month and day from the variable Date
 
 ```{r}
-
 library(lubridate)
 table(data_clean_1$Pack)
 
-
-data_clean_2 <- data_clean_1 %>% mutate(long = as.numeric(long), lat = as.numeric(lat), `Vendor Number` = as.numeric(`Vendor Number`), Pack = factor(Pack), `Bottle Volume (ml)` = factor(`Bottle Volume (ml)`))
-
-
-#data_clean_x <- data_clean_2 %>% mutate(Date = mdy(Date))
+data_clean_2 <- data_clean_1 %>% mutate(long = as.numeric(long), lat = as.numeric(lat), `Vendor Number` = as.numeric(`Vendor Number`), Pack = factor(Pack), `Bottle Volume (ml)` = factor(`Bottle Volume (ml)`)) # I changed columns that should be numeric or that should be factors because they can be categorized.
 
 data_clean_3 <- data_clean_2 %>% mutate(Date_New = mdy(Date)) %>% separate(Date, c("Month", "Day", "Year"), sep = "/")
 
@@ -87,11 +81,17 @@ data_clean_x <-  data_clean_3 %>% group_by(`Category Name`) %>% summarise(total_
 
 #summary(data_clean_x$total_amount_of_alcohal_sold)
 
-data_clean_x %>% ggplot(aes(x = reorder(`Category Name`, total_amount_of_alcohal_sold), y = total_amount_of_alcohal_sold))+ geom_point()+ coord_flip()
+data_clean_3 %>% ggplot(aes(x = `Category Name`, y = `Volume Sold (Liters)`))+
+  geom_line(aes(color = `Category Name`))+ theme(legend.position = "none", axis.text.x = element_text(angle = 45))+ coord_flip()+ 
+  ggtitle("Amount of Alcohol Sold by Brand Name")+ xlab("Brand Name")+ ylab("Amount in Liters Sold") # Complete breakdown
+
+data_clean_x %>% ggplot(aes(x = reorder(`Category Name`, total_amount_of_alcohal_sold), y = total_amount_of_alcohal_sold))+ geom_point(aes(color = total_amount_of_alcohal_sold))+ coord_flip()+
+  ggtitle("Subset of Popular Alcohol Quantites")+ xlab("Brand Name")+ ylab("Amount Sold in Gallons") # Subset of volume sold. 
 
 
 ```
 
+We can see from the plot that people in Iowa enjoy 80 PROOF VODKA, American Vodkas, CANADIAN WHISKIES, etc... the most out of all the alcohol in the data set.  
 
 # Part 4: 
 Find the daily sales liquor sales in Ames in 2018. Summarize number of sales, volume of liquor sold and amount of money spent. Plot volume sold by day (use a scatterplot of volume by day and facet by month). Describe any patterns. Find the dates for ISU football home games in Fall 2018. Can you see a pattern?
@@ -101,20 +101,43 @@ year_2018 <- data_clean_3 %>% mutate(Day = as.numeric(Day), Year = as.numeric(Ye
 History_2018 <- year_2018 %>% group_by(Day) %>% summarize(Total_bottles_Sold = sum(`Bottles Sold`), Total_Money_Spent = sum(`Sale (Dollars)`), Total_Volume_Liq = sum(`Volume Sold (Liters)`))
 
 History_2018 %>% ggplot(aes(x = Day, y = Total_bottles_Sold))+
-  geom_point()+geom_line() 
+  geom_point()+geom_line()+
+  ggtitle("Bottle Sale History")+ xlab("Day")+ ylab("Total Bottles")
 
 History_2018 %>% ggplot(aes(x = Day, y = Total_Money_Spent))+
-  geom_point()+geom_line()
+  geom_point()+geom_line()+
+  ggtitle("Money Spent History")+ xlab("Day")+ ylab("Amount of Money")
 
 History_2018 %>% ggplot(aes(x = Day, y = Total_Volume_Liq))+
-  geom_point()+geom_line()
+  geom_point()+geom_line()+
+  ggtitle("Amount of Alcohol")+ xlab("Day")+ ylab("Volume in Liters")
 
 year_2018 %>% ggplot(aes(x = Day, y = `Volume Sold (Liters)`))+
-  geom_point()+ geom_jitter()+ facet_wrap(~Month)
+  geom_point(aes(color = Month))+ geom_jitter(aes(color = Month))+ facet_wrap(~Month)+
+  ggtitle("Daily sales liquor sales in Ames in 2018")+ xlab("Day")+ ylab("Volume in Liters")
 
 
-#year_2018football <- year_2018 %>% filter(Month == 9 & Day == 8) & (Month == 9 & Day == 15) & (Month == 9 & Day == 22) & (Month == 9 & Day == 29) & (Month = 10 & Day == 6) & (Month == 10 & Day == 13) & (Month = 10 & Day == 27) & (Month == 11 & Day == 3) & (Month == 11 & Day == 10) & (Month == 11 & Day == 17) & (Month == 11 & Day == 24) & (Month == 12 & Day == 1) & (Month == 12 & Day == 28)) 
+
+
+
+# [I tried Multiple Way to Filters the Football Season]
+
+# year_2018football <- year_2018 %>% filter(Month %in% c(9, 10, 11, 12)) %>% filter(Day %in% c(8, 15, 22, 29, 6, 13, 27, 3, 10, 17, 24, 1, 28))
+
+# Football_Season <- year_2018 %>% filter(Date_New == as.Date("2018-12-1"))
 
 
 
 ```
+
+Looking at the scatterplot, we can see quantites of alcohol being sold tend to fall near the end of a month. There is also some interesting observations to be note in the scatterplot. First, the Month of September in the year 2018 seems to be missing.  Second, the month of October in the year 2018 is also missing a lot of data. 
+
+
+# Find the dates for ISU football home games in Fall 2018. Can you see a pattern?
+
+[Here is the Dates of ISU Football Games for 2018 Season](https://cyclones.com/schedule.aspx?schedule=241)
+
+We find out that these dates are missing from the Data.  Therefore the only pattern is an observation of there being no data. 
+
+
+
