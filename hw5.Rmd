@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#Part 1
+
+The code below downloads the data for Ames only and saves a local copy to your machine. The first time you run this code, make sure you have a good internet connection and enough space on your machine (~50 MB). If the local copy exists, re-knitting the file will load the (binary) file from disk and be much faster.
 
 ```{r}
 if(file.exists("alcohol.rds")) {
@@ -30,37 +33,88 @@ library(stringr)
 
 ```
 
+# Part 2 Data Cleaning
 
-
-
-
+1. Extract geographic latitude and longitude from the variable Store Location
 ```{r}
-class(data$`Store Location`)
-
-#data$`Store Location`
-
-
 
 data_clean_1 <- data %>% separate(`Store Location`, c("address1", "address2", "coords"), sep = "\n") %>% select(-address1, -address2) %>% mutate(coords = gsub("[()]", "", coords)) %>% separate(coords, c("lat", "long"), sep = ",") # My code
 
 str(data_clean_1)
 
 #Code using regular expressions
-
 #data_clean_1 <- data %>% mutate(`Store Location` = gsub("(?<=\\()[^()]*(?=\\))(*SKIP)(*F)|.", "", `Store Location`, perl=T)) %>% separate(`Store Location`, c("x-coordinate", "y-coordinate"), sep = ",") 
-
-
 
 ```
 
+2. Check variable types. Pick five variables that need to be converted to a different type and fix those.
+
+3. Extract year, month and day from the variable Date
+
 ```{r}
 
-
+library(lubridate)
 table(data_clean_1$Pack)
 
 
 data_clean_2 <- data_clean_1 %>% mutate(long = as.numeric(long), lat = as.numeric(lat), `Vendor Number` = as.numeric(`Vendor Number`), Pack = factor(Pack), `Bottle Volume (ml)` = factor(`Bottle Volume (ml)`))
 
-data_clean_3 <- data_clean_2 %>% separate(Date, c("Day", "Month", "Year"), sep = "/")
+
+#data_clean_x <- data_clean_2 %>% mutate(Date = mdy(Date))
+
+data_clean_3 <- data_clean_2 %>% mutate(Date_New = mdy(Date)) %>% separate(Date, c("Month", "Day", "Year"), sep = "/")
+
+```
+
+
+# Part 3 First Overview:
+
+1. Plot a scatterplot of lat and long of store locations.
+```{r}
+library(ggplot2)
+library(plotly)
+
+data_clean_3 %>% ggplot(aes(x = long, y = lat))+
+  geom_point(na.rm = TRUE) + geom_jitter(na.rm = TRUE)+
+  ggtitle("Scatterplot of Latitude Vs Longitude")+ xlab("Longitude")+ ylab("Latitude") 
+
+```
+
+2. Provide a visual breakdown of the liquor category (by Category Name). Include volume sold in the breakdown.
+```{r}
+
+data_clean_x <-  data_clean_3 %>% group_by(`Category Name`) %>% summarise(total_amount_of_alcohal_sold = (sum(`Volume Sold (Gallons)`))) %>% filter(total_amount_of_alcohal_sold >= 20000)
+
+#summary(data_clean_x$total_amount_of_alcohal_sold)
+
+data_clean_x %>% ggplot(aes(x = reorder(`Category Name`, total_amount_of_alcohal_sold), y = total_amount_of_alcohal_sold))+ geom_point()+ coord_flip()
+
+
+```
+
+
+# Part 4: 
+Find the daily sales liquor sales in Ames in 2018. Summarize number of sales, volume of liquor sold and amount of money spent. Plot volume sold by day (use a scatterplot of volume by day and facet by month). Describe any patterns. Find the dates for ISU football home games in Fall 2018. Can you see a pattern?
+```{r}
+year_2018 <- data_clean_3 %>% mutate(Day = as.numeric(Day), Year = as.numeric(Year), Month = as.numeric(Month)) %>% filter(Year == 2018)
+
+History_2018 <- year_2018 %>% group_by(Day) %>% summarize(Total_bottles_Sold = sum(`Bottles Sold`), Total_Money_Spent = sum(`Sale (Dollars)`), Total_Volume_Liq = sum(`Volume Sold (Liters)`))
+
+History_2018 %>% ggplot(aes(x = Day, y = Total_bottles_Sold))+
+  geom_point()+geom_line() 
+
+History_2018 %>% ggplot(aes(x = Day, y = Total_Money_Spent))+
+  geom_point()+geom_line()
+
+History_2018 %>% ggplot(aes(x = Day, y = Total_Volume_Liq))+
+  geom_point()+geom_line()
+
+year_2018 %>% ggplot(aes(x = Day, y = `Volume Sold (Liters)`))+
+  geom_point()+ geom_jitter()+ facet_wrap(~Month)
+
+
+#year_2018football <- year_2018 %>% filter(Month == 9 & Day == 8) & (Month == 9 & Day == 15) & (Month == 9 & Day == 22) & (Month == 9 & Day == 29) & (Month = 10 & Day == 6) & (Month == 10 & Day == 13) & (Month = 10 & Day == 27) & (Month == 11 & Day == 3) & (Month == 11 & Day == 10) & (Month == 11 & Day == 17) & (Month == 11 & Day == 24) & (Month == 12 & Day == 1) & (Month == 12 & Day == 28)) 
+
+
 
 ```
